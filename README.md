@@ -7,5 +7,6 @@ AutoRescue is a location-based automotive assistance platform that helps users f
     3. Tailwind
 
 ### Screenshots
+
 <img src="src/assets/shot1.png" alt="Screenshot1" width="500">
-<img src="src/assets/shot2.png" alt="screenshot2" width="500">
+<img src="src/assets/shot2.png" alt="screenshot2" width="500" margin-top="5px">
