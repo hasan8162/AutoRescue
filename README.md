@@ -1,16 +1,12 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# AutoRescue
+AutoRescue is a location-based automotive assistance platform that helps users find nearby car and motorcycle repair garages during emergencies. It integrates Google Maps to display nearby service centers with their distance, address, contact information, and directions, providing a simple and responsive way to quickly find roadside assistance.
+### Tools Used
+    1. ReactJs
+    2. GoogleApi
+    3. Tailwind
 
-Currently, two official plugins are available:
+### Screenshots
+    ![Screenshot1](src\assets\shot1.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+    ![Screenshot2](src\assets\shot1.png)
