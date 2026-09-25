@@ -51,21 +51,32 @@ export default function Map() {
   });
 
   // Get user location
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        () => setUserLocation(defaultLocation),
-      );
-    } else {
-      setUserLocation(defaultLocation);
-    }
-  }, []);
+  // 1. Updated useEffect with high accuracy & timeout options
+    useEffect(() => {
+      if ("geolocation" in navigator) {
+        const options = {
+          enableHighAccuracy: true,
+          timeout: 10000, // 10 seconds timeout
+          maximumAge: 0,
+        };
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.warn("Geolocation error or permission denied:", error);
+            setUserLocation(defaultLocation);
+          },
+          options
+        );
+      } else {
+        setUserLocation(defaultLocation);
+      }
+    }, []);
 
   const onLoad = useCallback((map) => {
     setMapInstance(map);
@@ -256,12 +267,13 @@ export default function Map() {
           }}
         >
           {/* User location */}
+          {/* User location marker with safe SVG path */}
           <MarkerF
             position={userLocation}
             title="Your Location"
             icon={{
-              path: window.google.maps.SymbolPath.CIRCLE,
-              scale: 8,
+              path: "M 0, 0 m -8, 0 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0", // Pure SVG circle path fallback
+              scale: 1,
               fillColor: "#1677FF",
               fillOpacity: 1,
               strokeWeight: 3,
