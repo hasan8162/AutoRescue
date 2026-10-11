@@ -7,6 +7,9 @@ import black from "../assets/blackLocator.png";
 import logo from "../assets/autoRescue.png";
 import loc from "../assets/locator.png"
 import phone from "../assets/phone.png"
+import bikeIcon from "../assets/bikeIcon.png";
+import carIcon from "../assets/carIcon.png";
+import garageIcon from "../assets/garageIcon.png"
 
 import { BarLoader } from "react-spinners";
 
@@ -43,6 +46,7 @@ export default function Map() {
   const [selectedGarageId, setSelectedGarageId] = useState(null);
   const [panelHeight, setPanelHeight] = useState(48);
   const [isDragging, setIsDragging] = useState(false);
+  const [garageType, setGarageType] = useState("Look For Garages");
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -83,88 +87,76 @@ export default function Map() {
   }, []);
 
   // Search nearby garages
-  const handleSearchGarages = async () => {
-    if (!mapInstance || !userLocation) return;
+  const handleSearchGarages = async (garageType, garageCategory) => {
+    console.log(garageType)
+  if (!mapInstance || !userLocation) return;
+  
+  setGarageType(garageCategory)
+  try {
+    const { Place } = await window.google.maps.importLibrary("places");
 
-    try {
-      const { Place } = await window.google.maps.importLibrary("places");
+    const request = {
+      textQuery: garageType,
+      fields: [
+        "id",
+        "displayName",
+        "location",
+        "formattedAddress",
+        "nationalPhoneNumber",
+        "photos",
+      ],
 
-      const request = {
-        fields: [
-          "id",
-          "displayName",
-          "location",
-          "formattedAddress",
-          "nationalPhoneNumber",
-          "photos",
-        ],
+      // Fix: Use locationBias with center and radius instead of locationRestriction
+      locationBias: {
+        center: userLocation,
+        radius: 1000,
+      },
 
-        locationRestriction: {
-          center: userLocation,
-          radius: 10000,
-        },
+      maxResultCount: 20,
+    };
 
-        includedPrimaryTypes: ["car_repair"],
+    const { places } = await Place.searchByText(request);
+    console.log(places);
 
-        maxResultCount: 20,
-      };
+    if (places && places.length > 0) {
+      const bounds = new window.google.maps.LatLngBounds();
+      bounds.extend(userLocation);
 
-      const { places } = await Place.searchNearby(request);
-      console.log(places);
+      const formattedGarages = places.map((place) => {
+        const garageLat = place.location.lat();
+        const garageLng = place.location.lng();
+        bounds.extend(place.location);
+        const photo = place.photos?.[0];
 
-      if (places && places.length > 0) {
-        const bounds = new window.google.maps.LatLngBounds();
+        return {
+          id: place.id,
+          name: place.displayName || "Auto Garage",
+          address: place.formattedAddress || "Address unavailable",
+          phone: place.nationalPhoneNumber || null,
+          lat: garageLat,
+          lng: garageLng,
+          distance: calculateDistance(
+            userLocation.lat,
+            userLocation.lng,
+            garageLat,
+            garageLng
+          ),
+          image: photo
+            ? photo.getURI({ maxWidth: 300, maxHeight: 300 })
+            : null,
+        };
+      });
 
-        bounds.extend(userLocation);
-
-        const formattedGarages = places.map((place) => {
-          const garageLat = place.location.lat();
-          const garageLng = place.location.lng();
-
-          bounds.extend(place.location);
-
-          const photo = place.photos?.[0];
-
-          return {
-            id: place.id,
-            name: place.displayName || "Auto Garage",
-            address: place.formattedAddress || "Address unavailable",
-            phone: place.nationalPhoneNumber || null,
-
-            lat: garageLat,
-            lng: garageLng,
-
-            distance: calculateDistance(
-              userLocation.lat,
-              userLocation.lng,
-              garageLat,
-              garageLng,
-            ),
-
-            image: photo
-              ? photo.getURI({
-                  maxWidth: 300,
-                  maxHeight: 300,
-                })
-              : null,
-          };
-        });
-
-        // Sort nearest first
-        formattedGarages.sort(
-          (a, b) => Number(a.distance) - Number(b.distance),
-        );
-
-        setGarages(formattedGarages);
-
-        mapInstance.fitBounds(bounds);
-      } else {
-        alert("No nearby garages found.");
-      }
-    } catch (error) {
-      console.error("Search failed:", error);
+      formattedGarages.sort((a, b) => Number(a.distance) - Number(b.distance));
+      setGarages(formattedGarages);
+      mapInstance.fitBounds(bounds);
+    } else {
+      alert("No nearby garages found.");
     }
-  };
+  } catch (error) {
+    console.error("Search failed:", error);
+  }
+};
 
   // Select garage
   const handleSelectGarage = (garage) => {
@@ -215,6 +207,11 @@ export default function Map() {
         <BarLoader color="#000000" />
       </div>
     );
+  }
+
+  const test = async () => {
+    setIsOpen(!isOpen)
+    console.log(isOpen)
   }
 
   const handleDragStart = (e) => {
@@ -268,18 +265,18 @@ export default function Map() {
         >
           {/* User location */}
           {/* User location marker with safe SVG path */}
-          <MarkerF
-            position={userLocation}
-            title="Your Location"
-            icon={{
-              path: "M 0, 0 m -8, 0 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0", // Pure SVG circle path fallback
-              scale: 1,
-              fillColor: "#1677FF",
-              fillOpacity: 1,
-              strokeWeight: 3,
-              strokeColor: "#ffffff",
-            }}
-          />
+        <MarkerF
+          position={userLocation}
+          title="Your Location"
+          icon={{
+            path: "M 0, 0 m -8, 0 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0", // Pure SVG circle path fallback
+            scale: 1,
+            fillColor: "#1677FF",
+            fillOpacity: 1,
+            strokeWeight: 3,
+            strokeColor: "#ffffff",
+          }}
+        />
 
           {/* Garage markers */}
           {garages.map((garage) => {
@@ -394,27 +391,15 @@ export default function Map() {
             </div>
           </div>
           {/* Search button */}
-          <div className="gap-5 flex pr-5">
-            <button
-              onClick={handleSearchGarages}
-              className="
-                    rounded-xl
-                    bg-gray-900
-                    border-2
-                    border-red-700
-                    px-4
-                    py-2
-                    text-sm
-                    font-medium
-                    text-white
-                    shadow-sm
-                    transition
-                    hover:bg-gray-700
-                    active:scale-95
-                    "
-            >
-              Search Garage
+          <div className="dropdown dropdown-end">
+            <button tabIndex="0" className="btn m-1 rounded-xl bg-gray-900 border-2 border-red-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-700 active:scale-95">
+                {garageType} <span className="w-3 text-lg">˅</span>
             </button>
+              <ul tabIndex="-1" className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+                <li><button onClick={() => handleSearchGarages("Car or Bike garage", "All Garages")} className="hover:border-1 hover:rounder-lg hover:border-red-700"><span><img src={garageIcon} alt="garage" className="h-4 w-4" /></span>All Garages</button></li>
+                <li><button onClick={() => handleSearchGarages("Car garage or Car Service", "Car Garages")} className="hover:border-1 hover:rounder-lg hover:border-red-700"><span><img src={carIcon} alt="car garage" className="h-4 w-4"  /></span> Car Garages</button></li>
+                <li><button onClick={() => handleSearchGarages("Bike garage or Bike service", "Bike Garages")} className="hover:border-1 hover:rounder-lg hover:border-red-700"><span><img src={bikeIcon} alt="bike garage" className="h-4 w-4" /></span> Bike Garages</button></li>
+              </ul>
           </div>
         </div>
 
