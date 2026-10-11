@@ -395,8 +395,8 @@ export default function Map() {
             <button tabIndex="0" className="btn m-1 rounded-xl bg-gray-900 border-2 border-red-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-700 active:scale-95">
                 {garageType} <span className="w-3 text-lg">˅</span>
             </button>
-              <ul tabIndex="-1" className="dropdown-content menu bg-gray-0 rounded-box z-1 w-52 p-2 shadow-sm">
-                <li><button onClick={() => handleSearchGarages("Car or Bike garage", "All Garages")} className="hover:border-1 hover:rounder-lg hover:border-red-700 text-gray-950 hover:bg-gray-200"><span><img src={garageIcon} alt="garage" className="h-4 w-4" /></span>All Garages</button></li>
+              <ul tabIndex="-1" className="dropdown-content menu bg-gray-50 rounded-box z-1 w-52 p-2 shadow-sm">
+                <li><button onClick={() => handleSearchGarages("Car or Bike garage", "All Garages")} className="hover:border-1 hover:rounder-lg hover:border-red-700 hover:bg-gray-200 text-gray-950"><span><img src={garageIcon} alt="garage" className="h-4 w-4" /></span>All Garages</button></li>
                 <li><button onClick={() => handleSearchGarages("Car garage or Car Service", "Car Garages")} className="hover:border-1 hover:rounder-lg hover:border-red-700 text-gray-950 hover:bg-gray-200"><span><img src={carIcon} alt="car garage" className="h-4 w-4"  /></span> Car Garages</button></li>
                 <li><button onClick={() => handleSearchGarages("Bike garage or Bike service", "Bike Garages")} className="hover:border-1 hover:rounder-lg hover:border-red-700 text-gray-950 hover:bg-gray-200"><span><img src={bikeIcon} alt="bike garage" className="h-4 w-4" /></span> Bike Garages</button></li>
               </ul>
