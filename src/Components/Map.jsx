@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useJsApiLoader, GoogleMap, MarkerF } from "@react-google-maps/api";
-import auto from "../assets/auto.png";
-import locator from "../assets/locator.jpg";
 import red from "../assets/redLocator.png";
 import black from "../assets/blackLocator.png";
 import logo from "../assets/autoRescue.png";
-import loc from "../assets/locator.png"
 import phone from "../assets/phone.png"
 import bikeIcon from "../assets/bikeIcon.png";
 import carIcon from "../assets/carIcon.png";
 import garageIcon from "../assets/garageIcon.png"
+import redBikeLocator from "../assets/bikeLocator.png"
+import blackBikeLocator from "../assets/blackBikeLocator.png"
+import blackCarLoctor from "../assets/carLocator.png";
+import redCarLocator from "../assets/redCarLocator.png"
+import carGif from "../assets/bikeGif.gif"
+
 
 import { BarLoader } from "react-spinners";
 
@@ -47,6 +50,8 @@ export default function Map() {
   const [panelHeight, setPanelHeight] = useState(48);
   const [isDragging, setIsDragging] = useState(false);
   const [garageType, setGarageType] = useState("Look For Garages");
+  const [redLocator, setRedLocator] = useState(red);
+  const [blackLocator, setBlackLocator] = useState(black);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -92,6 +97,17 @@ export default function Map() {
   if (!mapInstance || !userLocation) return;
   
   setGarageType(garageCategory)
+
+  if(garageCategory === "All Garages"){
+      setBlackLocator(black);
+      setRedLocator(red);
+  } else if(garageCategory === "Car Garages") {
+      setBlackLocator(blackCarLoctor);
+      setRedLocator(redCarLocator);
+  } else {
+      setBlackLocator(blackBikeLocator);
+      setRedLocator(redBikeLocator);
+  }
   try {
     const { Place } = await window.google.maps.importLibrary("places");
 
@@ -292,7 +308,7 @@ export default function Map() {
                 title={garage.name}
                 onClick={() => handleSelectGarage(garage)}
                 icon={{
-                  url: isSelected ? black : red,
+                  url: isSelected ? blackLocator : redLocator,
                   scaledSize: new window.google.maps.Size(
                     isSelected ? 48 : 40,
                     isSelected ? 48 : 40,
@@ -495,7 +511,7 @@ export default function Map() {
                         </p>
 
                         <div className="flex gap-2 mt-1">
-                            <img src={loc} className="h-3 mt-1 opacity-70"/>
+                            <img src={black} className="h-3 mt-1 opacity-70"/>
                              <p className="truncate text-sm text-slate-700">
                                {garage.address}
                             </p>
