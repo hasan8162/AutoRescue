@@ -62,43 +62,13 @@ export default function Map() {
   // Get user location
   // 1. Updated useEffect with high accuracy & timeout options
     useEffect(() => {
-    let watchId = null;
-
-    const getLocation = () => {
       if ("geolocation" in navigator) {
         const options = {
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 10000, // 10 seconds timeout
           maximumAge: 0,
         };
 
-        // 1. Continuous background tracker
-        watchId = navigator.geolocation.watchPosition(
-          (position) => {
-            setUserLocation({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-          },
-          (error) => {
-            console.warn("Geolocation warning:", error.message);
-            if (!userLocation) {
-              setUserLocation(defaultLocation);
-            }
-          },
-          options
-        );
-      } else {
-        setUserLocation(defaultLocation);
-      }
-    };
-
-    getLocation();
-
-    // 2. MOBILE FIX: When user switches back from settings to the browser tab, re-check location
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        console.log("App came back to foreground, re-checking location...");
         navigator.geolocation.getCurrentPosition(
           (position) => {
             setUserLocation({
@@ -106,22 +76,16 @@ export default function Map() {
               lng: position.coords.longitude,
             });
           },
-          (error) => console.log("Still waiting for GPS:", error.message),
-          { enableHighAccuracy: true, timeout: 5000 }
+          (error) => {
+            console.warn("Geolocation error or permission denied:", error);
+            setUserLocation(defaultLocation);
+          },
+          options
         );
+      } else {
+        setUserLocation(defaultLocation);
       }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    // Cleanup listeners on unmount
-    return () => {
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-      }
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, []);
+    }, []);
 
   const onLoad = useCallback((map) => {
     setMapInstance(map);
@@ -238,27 +202,10 @@ export default function Map() {
   };
 
   // Go back to user's location
-  // Go back to user's location & force a fresh GPS/Wi-Fi check
   const handleMyLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const newLoc = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setUserLocation(newLoc);
-          if (mapInstance) {
-            mapInstance.panTo(newLoc);
-            mapInstance.setZoom(14);
-          }
-        },
-        (error) => {
-          console.warn("Could not get location. Is it turned on in system settings?", error);
-          alert("Please ensure location services are turned on in your laptop settings.");
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
+    if (mapInstance && userLocation) {
+      mapInstance.panTo(userLocation);
+      mapInstance.setZoom(14);
     }
   };
 
