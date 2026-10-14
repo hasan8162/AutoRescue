@@ -161,11 +161,16 @@ export default function Map() {
             ? photo.getURI({ maxWidth: 300, maxHeight: 300 })
             : null,
         };
-      });
+      }).filter((garage) => Number(garage.distance) <= 20);
 
-      formattedGarages.sort((a, b) => Number(a.distance) - Number(b.distance));
-      setGarages(formattedGarages);
-      mapInstance.fitBounds(bounds);
+      if (formattedGarages.length > 0) {
+        formattedGarages.sort((a, b) => Number(a.distance) - Number(b.distance));
+        setGarages(formattedGarages);
+        mapInstance.fitBounds(bounds);
+      } else {
+        setGarages([]);
+        alert("No nearby garages found within 20 km.");
+      }
     } else {
       alert("No nearby garages found.");
     }
